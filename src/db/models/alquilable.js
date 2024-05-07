@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Alquilable.hasMany(models.Registro, { 
+        as: 'registros', /*Como quiero que se llame la coleccion*/
+        foreignKey: 'rentable_id'
+      })
     }
   }
   Alquilable.init({
@@ -23,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Alquilable',
-    tableName: 'Rentable'
+    tableName: 'Rentable',
+    timestamps: false,
   });
   return Alquilable;
 };

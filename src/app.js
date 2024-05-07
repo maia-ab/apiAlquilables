@@ -16,8 +16,8 @@ app.get('/alquilable/:id', async (req, res)=>{
   const idAlquilabe = req.params.id;
   const alquilable = await db.Alquilable.findOne(
     {
-      where: {id: idAlquilabe}, 
-      attributes:['id','descripcion','disponible', 'precio']
+      where: {id: idAlquilabe},
+      include: ['registros']
     })
   res.status(200).json(alquilable)
 })
@@ -32,6 +32,31 @@ app.delete('/alquilable/:id', async (req, res)=>{
    }
 })
 
+
+app.delete('/alquilable/:idAlquilable/registro/:idRegistro', async (req, res)=>{
+  const idAlquilabe = req.params.idAlquilable;
+  const idRegistro = req.params.idRegistro
+  const row = await db.Registro.destroy({where: {id: idRegistro, rentable_id:idAlquilabe}})
+  if(row) {
+   res.status(200).json(`El registro con id ${idRegistro} se borro con exito del aquilable con id ${idAlquilabe}.`)
+  } else {
+   res.status(404).json(`El registro con id ${idRegistro} no se encontro en el aquilable con id ${idAlquilabe}.`)
+  }
+})
+
+
+
+
+app.delete('/registro/:id', async (req, res)=>{
+  const id = req.params.id;
+  const row = await db.Registro.destroy({where: {id}})
+  if(row) {
+   res.status(200).json(`El registro con id ${id} se borro con exito.`)
+  } else {
+   res.status(404).json(`El registro con id ${id} no existe.`)
+  }
+})
+
 app.post('/alquilable',async (req, res)=>{
     try {
       const alquilabe = req.body
@@ -41,6 +66,20 @@ app.post('/alquilable',async (req, res)=>{
       res.status(500).json(err.message)
     }
 })
+
+app.post('/alquilable/:id/registro', async (req, res) =>{
+  const idAlquilabe = req.params.id;
+  const alquilable = await db.Alquilable.findByPk(idAlquilabe)
+  if(alquilable){
+    const registro = req.body
+    const newRercord = await db.Registro.create({ rentable_id:alquilable.id, ...registro})
+    res.status(201).json(newRercord)
+  } else {
+    res.status(404).json({error: `El id ${idAlquilabe} no existe como alquilable.`})
+  }
+   
+})
+
 
 app.put('/alquilable/:id', (req, res)=>{
   const id = req.params.id;
@@ -62,8 +101,26 @@ app.listen(3000, async ()=>{
      db.Alquilable.create({
       descripcion: 'Castillo Inflable',
       disponible: true,
-      precio: 1200
-     })
+      precio: 1200,
+      registros:[
+        {
+          fecha: new Date('2024-01-05'),
+          abono: true,
+          id_cliente:1
+        },
+        {
+          fecha: new Date('2024-03-15'),
+          abono: false,
+          id_cliente:1
+        },
+        {
+          fecha: new Date('2024-03-17'),
+          abono: false,
+          id_cliente:1
+        },
+
+      ]
+     }, {include:['registros']})
 
      db.Alquilable.create({
       descripcion: 'Toro Mecanico',
