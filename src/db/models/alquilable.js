@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Alquilable.hasMany(models.Registro, { 
-        as: 'registros', /*Como quiero que se llame la coleccion*/
+      Alquilable.hasMany(models.Registro, {
+        as: 'registros', // Como quiero que se llame la colección 
         foreignKey: 'rentable_id'
       })
     }
