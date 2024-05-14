@@ -1,26 +1,17 @@
 const express = require('express')
 const data = require('../data/data.json')
 const db = require('./db/models')
+const clienterouter = require('./routes/cliente.route')
+const alquilablerouter = require('./routes/alquilable.route')
 
 
 const _ = require('lodash');
 const app = express();
-app.use(express.json())
+app.use(express.json());
+app.use(clienterouter);
+app.use(alquilablerouter);
 
-app.get('/alquilable', async (req, res)=>{
-  const alquilables = await db.Alquilable.findAll({});
-  res.status(200).json(alquilables)
-})
 
-app.get('/alquilable/:id', async (req, res)=>{
-  const idAlquilabe = req.params.id;
-  const alquilable = await db.Alquilable.findOne(
-    {
-      where: {id: idAlquilabe},
-      include: ['registros']
-    })
-  res.status(200).json(alquilable)
-})
 
 app.delete('/alquilable/:id', async (req, res)=>{
    const id = req.params.id;
@@ -95,8 +86,13 @@ app.put('/alquilable/:id', (req, res)=>{
 app.listen(3000, async ()=>{
   console.log(`La aplicacion arranco correctamente en el puerto 3000`);
   try {
+    //Verifica si se pudo conectar bien a la base de datos
      await db.sequelize.authenticate()
+     // El método sync solo se usa en ambientes de desarrollo. No utilizar en produccion.
+
      await db.sequelize.sync({force:true});
+  
+
 
      db.Alquilable.create({
       descripcion: 'Castillo Inflable',
@@ -106,17 +102,17 @@ app.listen(3000, async ()=>{
         {
           fecha: new Date('2024-01-05'),
           abono: true,
-          id_cliente:1
+          cliente
         },
         {
           fecha: new Date('2024-03-15'),
           abono: false,
-          id_cliente:1
+          cliente
         },
         {
           fecha: new Date('2024-03-17'),
           abono: false,
-          id_cliente:1
+          cliente
         },
 
       ]
